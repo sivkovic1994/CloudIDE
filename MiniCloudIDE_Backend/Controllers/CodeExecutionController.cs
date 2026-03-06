@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
+using MiniCloudIDE_Backend.Services;
 using System.Diagnostics;
 
 namespace MiniCloudIDE_Backend.Controllers
@@ -9,6 +10,15 @@ namespace MiniCloudIDE_Backend.Controllers
     [Route("[controller]")]
     public class CodeExecutionController : ControllerBase
     {
+        private readonly IScriptHistoryService _historyService;
+
+        public CodeExecutionController(IScriptHistoryService historyService)
+        {
+            _historyService = historyService;
+        }
+
+        #region Public Methods
+
         [HttpPost]
         public async Task<IActionResult> Run([FromBody] CodeRequest request)
         {
@@ -25,6 +35,27 @@ namespace MiniCloudIDE_Backend.Controllers
                     return BadRequest(new { error = "Unsupported language" });
             }
         }
+
+        [HttpPost("save")]
+        public async Task<IActionResult> SaveScript([FromBody] CodeRequest request)
+        {
+            await _historyService.SaveScript(request.Language, request.Code);
+
+            var history = await _historyService.GetHistory(request.Language);
+
+            return Ok(history);
+        }
+
+        [HttpGet("history/{language}")]
+        public async Task<IActionResult> GetHistory(string language)
+        {
+            var history = await _historyService.GetHistory(language);
+            return Ok(history);
+        }
+
+        #endregion
+
+        #region Helpers
 
         private async Task<IActionResult> RunCSharp(string code)
         {
@@ -80,6 +111,8 @@ namespace MiniCloudIDE_Backend.Controllers
                 return Ok(new { output = "", errors = ex.Message });
             }
         }
+
+        #endregion
     }
 
     public class CodeRequest

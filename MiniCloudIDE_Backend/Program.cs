@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using MiniCloudIDE_Backend.Data;
+using MiniCloudIDE_Backend.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -8,6 +12,11 @@ builder.Services.AddCors(options =>
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });
+
+builder.Services.AddScoped<IScriptHistoryService, ScriptHistoryService>();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
 
 var app = builder.Build();
 

@@ -6,6 +6,7 @@ const EditorWithControls: React.FC = () => {
   const [language, setLanguage] = useState<string>("python");
   const [theme, setTheme] = useState<string>("vs-dark");
   const [code, setCode] = useState<string>("print(\"Hello World\")");
+  const [history, setHistory] = useState<string[]>([]);
   const [output, setOutput] = useState<string>("");
 
   const runCode = async () => {
@@ -20,6 +21,19 @@ const EditorWithControls: React.FC = () => {
     }
   };
 
+  const saveScript = async () => {
+  try {
+    const res = await axios.post("/CodeExecution/save", {
+      language: language === "csharp" ? "C#" : "Python",
+      code: code
+    });
+
+    setHistory(res.data);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
   // Add F5 shortcut to run code
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -31,6 +45,12 @@ const EditorWithControls: React.FC = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [code, language]);
+
+  // Clear code and history when language changes
+  useEffect(() => {
+    setCode("");
+    setHistory([]);
+  }, [language]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", padding: "10px" }}>
@@ -55,6 +75,7 @@ const EditorWithControls: React.FC = () => {
 
         {/* Run button */}
         <button onClick={runCode}>Run (F5)</button>
+        <button onClick={saveScript}>Save</button>
       </div>
 
       {/* Editor */}
@@ -77,6 +98,18 @@ const EditorWithControls: React.FC = () => {
       <pre style={{ marginTop: "10px", background: "#f0f0f0", padding: "10px", minHeight: "100px" }}>
         {output}
       </pre>
+
+      {/* History */}
+      <div style={{ marginTop: "10px" }}>
+        <h3>History</h3>
+        {history.map((script, index) => (
+          <div key={index}>
+            <button onClick={() => setCode(script)}>
+              Load script {index + 1}
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
