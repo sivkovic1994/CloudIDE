@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
 
@@ -33,6 +33,10 @@ const EditorWithControls: React.FC = () => {
   const [history, setHistory] = useState<Script[]>([]);
   const [output, setOutput] = useState<string>("");
 
+  // useRef is used here to store a persistent cache of history per language.
+  // This way, the cache survives component re-renders without causing extra renders.
+  const historyCache = useRef<Record<string, Script[]>>({});
+
   interface Script {
     id: number;
     code: string;
@@ -57,6 +61,7 @@ const EditorWithControls: React.FC = () => {
     try {
       const lang = language === "csharp" ? "C#" : "Python";
       const res = await axios.post("/CodeExecution/save", { language: lang, code });
+      historyCache.current[lang] = res.data;
       setHistory(res.data);
     } catch (err) {
       console.error(err);
@@ -64,9 +69,16 @@ const EditorWithControls: React.FC = () => {
   };
 
   const loadHistory = async () => {
+    const lang = language === "csharp" ? "C#" : "Python";
+
+    if (historyCache.current[lang]) {
+      setHistory(historyCache.current[lang]);
+      return;
+    }
+
     try {
-      const lang = language === "csharp" ? "C#" : "Python";
       const res = await axios.get(`/CodeExecution/history/${encodeURIComponent(lang)}`);
+      historyCache.current[lang] = res.data;
       setHistory(res.data);
     } catch (err) {
       console.error("Failed to load history", err);
