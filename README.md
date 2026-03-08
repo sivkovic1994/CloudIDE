@@ -2,11 +2,11 @@
 
 A cloud-based IDE that lets you write and execute **Python** and **C#** code directly in the browser. Supports user authentication, script saving, and history browsing.
 
-![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql)
-![TypeScript](https://img.shields.io/badge/TypeScript-4.9-3178C6?logo=typescript)
-![Python](https://img.shields.io/badge/Python-3-3776AB?logo=python)
+![.NET Core](https://img.shields.io/badge/.NET_Core-512BD4?logo=dotnet&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
 
 ---
 
@@ -28,8 +28,8 @@ A cloud-based IDE that lets you write and execute **Python** and **C#** code dir
 
 | Technology | Purpose |
 |---|---|
-| **ASP.NET Core (.NET 9)** | Web API framework |
-| **Entity Framework Core 9** | ORM for database access |
+| **ASP.NET Core** | Web API framework |
+| **Entity Framework Core** | ORM for database access |
 | **PostgreSQL** | Relational database |
 | **ASP.NET Identity** | User management (registration, login) |
 | **JWT (JSON Web Tokens)** | Authentication — stateless tokens with a 30-day expiry |
@@ -40,7 +40,7 @@ A cloud-based IDE that lets you write and execute **Python** and **C#** code dir
 
 | Technology | Purpose |
 |---|---|
-| **React 19** | UI framework |
+| **React** | UI framework |
 | **TypeScript** | Typed JavaScript |
 | **Monaco Editor** | Code editor component (same foundation as VS Code) |
 | **Axios** | HTTP client for API communication |
