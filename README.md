@@ -1,4 +1,4 @@
-# MiniCloudIDE
+# CloudIDE
 
 A cloud-based IDE that lets you write and execute **Python** and **C#** code directly in the browser. Supports user authentication, script saving, and history browsing.
 
@@ -108,7 +108,7 @@ The backend launches `worker.py` as a background process. Communication happens 
 ## Project Structure
 
 ```
-MiniCloudIDE/
+CloudIDE/
 ├── worker.py                        # Python TCP worker for code execution
 ├── MiniCloudIDE_Backend/
 │   ├── Program.cs                   # Server configuration (CORS, JWT, DI)
