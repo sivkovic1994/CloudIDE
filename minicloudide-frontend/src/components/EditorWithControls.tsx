@@ -104,6 +104,11 @@ const EditorWithControls: React.FC = () => {
     if (user) loadHistory();
   }, []);
 
+  // Clear output when user logs in or out
+  useEffect(() => {
+    setOutput("");
+  }, [user]);
+
   // Clear code, output, and reload history when language changes
   useEffect(() => {
     setCode("");
