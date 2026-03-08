@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
+import { useAuth } from "../context/AuthProvider";
 
 const examples: Record<string, string> = {
   python: `nums = []
@@ -27,6 +28,7 @@ result`
 };
 
 const EditorWithControls: React.FC = () => {
+  const { user, logout, setShowAuth } = useAuth();
   const [language, setLanguage] = useState<string>("python");
   const [theme, setTheme] = useState<string>("vs-dark");
   const [code, setCode] = useState<string>("print(\"Hello World\")");
@@ -97,20 +99,33 @@ const EditorWithControls: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [code, language]);
 
-  // Load history on mount
+  // Load history on mount (only if logged in)
   useEffect(() => {
-    loadHistory();
+    if (user) loadHistory();
   }, []);
 
   // Clear code, output, and reload history when language changes
   useEffect(() => {
     setCode("");
     setOutput("");
-    loadHistory();
+    if (user) loadHistory();
   }, [language]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", padding: "10px" }}>
+
+      {/* Top bar */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px", padding: "6px 12px", background: "#2d2d2d", borderRadius: "6px" }}>
+        <span style={{ color: "#ccc", fontSize: "14px" }}>MiniCloud IDE</span>
+        {user ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <span style={{ color: "#ccc", fontSize: "14px" }}>Welcome, <strong style={{ color: "#fff" }}>{user.username}</strong></span>
+            <button onClick={logout} style={{ padding: "6px 16px", background: "#dc3545", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer" }}>Logout</button>
+          </div>
+        ) : (
+          <button onClick={() => setShowAuth(true)} style={{ padding: "6px 16px", background: "#0078d4", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer" }}>Login / Register</button>
+        )}
+      </div>
 
       {/* Controls */}
       <div style={{ marginBottom: "10px", display: "flex", gap: "10px", alignItems: "center" }}>
@@ -132,7 +147,7 @@ const EditorWithControls: React.FC = () => {
 
         {/* Run button */}
         <button onClick={runCode}>Run (F5)</button>
-        <button onClick={saveScript}>Save</button>
+        {user && <button onClick={saveScript}>Save</button>}
         <button onClick={() => setCode(examples[language])}>Load Example</button>
       </div>
 
@@ -157,24 +172,26 @@ const EditorWithControls: React.FC = () => {
         {output}
       </pre>
 
-      {/* History */}
-      <div style={{ marginTop: "10px" }}>
-        <h3>History</h3>
-        {history.length === 0 ? (
-          <p>No scripts saved yet.</p>
-        ) : (
-          history.map((script) => (
-            <div key={script.id} style={{ marginBottom: "5px" }}>
-              <button
-                onClick={() => setCode(script.code)}
-                style={{ padding: "5px 10px", cursor: "pointer" }}
-              >
-                {new Date(script.createdAt).toLocaleString()} — Load
-              </button>
-            </div>
-          ))
-        )}
-      </div>
+      {/* History (only for logged in users) */}
+      {user && (
+        <div style={{ marginTop: "10px" }}>
+          <h3>History</h3>
+          {history.length === 0 ? (
+            <p>No scripts saved yet.</p>
+          ) : (
+            history.map((script) => (
+              <div key={script.id} style={{ marginBottom: "5px" }}>
+                <button
+                  onClick={() => setCode(script.code)}
+                  style={{ padding: "5px 10px", cursor: "pointer" }}
+                >
+                  {new Date(script.createdAt).toLocaleString()} — Load
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };

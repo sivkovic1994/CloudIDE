@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MiniCloudIDE_Backend.Models;
 
 namespace MiniCloudIDE_Backend.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -13,7 +14,6 @@ namespace MiniCloudIDE_Backend.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Fluent API configuration for ScriptHistory entity
             modelBuilder.Entity<ScriptHistory>(entity =>
             {
                 entity.ToTable("script_history");
@@ -28,6 +28,14 @@ namespace MiniCloudIDE_Backend.Data
 
                 entity.Property(e => e.CreatedAt)
                     .HasDefaultValueSql("NOW()");
+
+                entity.Property(e => e.UserId)
+                    .IsRequired();
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

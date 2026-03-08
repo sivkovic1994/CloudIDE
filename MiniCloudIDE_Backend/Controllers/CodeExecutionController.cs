@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using MiniCloudIDE_Backend.Services;
+using System.Security.Claims;
 
 namespace MiniCloudIDE_Backend.Controllers
 {
@@ -40,9 +41,13 @@ namespace MiniCloudIDE_Backend.Controllers
         [HttpPost("save")]
         public async Task<IActionResult> SaveScript([FromBody] CodeRequest request)
         {
-            await _historyService.SaveScript(request.Language, request.Code);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Unauthorized();
 
-            var history = await _historyService.GetHistory(request.Language);
+            await _historyService.SaveScript(request.Language, request.Code, userId);
+
+            var history = await _historyService.GetHistory(request.Language, userId);
 
             return Ok(history);
         }
@@ -50,14 +55,22 @@ namespace MiniCloudIDE_Backend.Controllers
         [HttpGet("history/{language}")]
         public async Task<IActionResult> GetHistory(string language)
         {
-            var history = await _historyService.GetHistory(language);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Unauthorized();
+
+            var history = await _historyService.GetHistory(language, userId);
             return Ok(history);
         }
 
         [HttpGet("script/{id}")]
         public async Task<IActionResult> GetScriptById(int id)
         {
-            var script = await _historyService.GetScriptById(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Unauthorized();
+
+            var script = await _historyService.GetScriptById(id, userId);
 
             if (script == null)
                 return NotFound(new { error = "Script not found" });

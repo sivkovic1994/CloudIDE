@@ -13,33 +13,32 @@ namespace MiniCloudIDE_Backend.Services
             _context = context;
         }
 
-        public async Task SaveScript(string language, string code)
+        public async Task SaveScript(string language, string code, string userId)
         {
-            ScriptHistory history = new ScriptHistory
+            var script = new ScriptHistory
             {
                 Language = language,
                 Code = code,
+                UserId = userId,
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.ScriptHistories.Add(history);
-
+            _context.ScriptHistories.Add(script);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<ScriptHistory>> GetHistory(string language)
+        public async Task<List<ScriptHistory>> GetHistory(string language, string userId)
         {
             return await _context.ScriptHistories
-                .Where(h => h.Language == language)
-                .OrderByDescending(h => h.CreatedAt)
-                .Take(10)
+                .Where(s => s.Language == language && s.UserId == userId)
+                .OrderByDescending(s => s.CreatedAt)
                 .ToListAsync();
         }
 
-        public async Task<ScriptHistory?> GetScriptById(int id)
+        public async Task<ScriptHistory?> GetScriptById(int id, string userId)
         {
             return await _context.ScriptHistories
-                .FirstOrDefaultAsync(h => h.Id == id);
+                .FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
         }
     }
 }
