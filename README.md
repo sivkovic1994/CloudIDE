@@ -6,6 +6,7 @@ A cloud-based IDE that lets you write and execute **Python** and **C#** code dir
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql)
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.9-3178C6?logo=typescript)
+![Python](https://img.shields.io/badge/Python-3-3776AB?logo=python)
 
 ---
 
