@@ -116,38 +116,73 @@ The backend launches `worker.py` as a background process. Communication happens 
 ## Project Structure
 
 ```
-CloudIDE/
-├── docker-compose.yml               # Runs everything with one command
-├── MiniCloudIDE_Backend/
-│   ├── Dockerfile                   # Backend Docker image
-│   ├── Program.cs                   # Server configuration (CORS, JWT, DI)
-│   ├── worker.py                    # Python TCP worker for code execution
-│   ├── Controllers/
-│   │   ├── AuthController.cs        # Register, login, /me
-│   │   └── CodeExecutionController.cs  # Code execution and history
+MiniCloudIDE/
+├── MiniCloudIDE.sln                      # Solution file
+├── Dockerfile                            # Multi-stage Docker build
+├── docker-compose.yml                    # Runs everything with one command
+│
+├── MiniCloudIDE.Domain/                  # Domain Layer (no dependencies)
+│   └── Entities/
+│       ├── ApplicationUser.cs            # User model (extends IdentityUser)
+│       └── ScriptHistory.cs              # Model for saved scripts
+│
+├── MiniCloudIDE.Application/             # Application Layer (depends on Domain)
+│   ├── DTOs/                             # Request/Response models
+│   │   ├── AuthResponse.cs
+│   │   ├── CodeRequest.cs
+│   │   ├── LoginRequest.cs
+│   │   └── RegisterRequest.cs
+│   └── Interfaces/                       # Service contracts
+│       ├── IPythonExecutionService.cs
+│       └── IScriptHistoryService.cs
+│
+├── MiniCloudIDE.Infrastructure/          # Infrastructure Layer (depends on Application)
+│   ├── DependencyInjection.cs            # DI registration for all infra services
+│   ├── worker.py                         # Python TCP worker for code execution
 │   ├── Data/
-│   │   └── AppDbContext.cs          # EF Core context (Identity + ScriptHistory)
-│   ├── Models/
-│   │   ├── ApplicationUser.cs       # User model (extends IdentityUser)
-│   │   ├── ScriptHistory.cs         # Model for saved scripts
-│   │   └── DTOs/                    # Request/Response models
+│   │   └── AppDbContext.cs               # EF Core context (Identity + ScriptHistory)
 │   ├── Services/
 │   │   ├── PythonExecutionService.cs     # TCP communication with the Python worker
 │   │   ├── PythonWorkerHostedService.cs  # Launches the worker.py process
 │   │   └── ScriptHistoryService.cs       # CRUD operations for script history
-│   └── Migrations/                  # EF Core migrations
-└── minicloudide-frontend/
-    ├── Dockerfile                   # Frontend Docker image
-    ├── nginx.conf                   # Nginx config (serves app + proxies API)
+│   └── Migrations/                       # EF Core migrations
+│
+├── MiniCloudIDE.API/                     # API Layer (depends on Infrastructure)
+│   ├── Program.cs                        # Server configuration (CORS, JWT, DI)
+│   ├── appsettings.json                  # Configuration
+│   ├── Controllers/
+│   │   ├── AuthController.cs             # Register, login, /me
+│   │   └── CodeExecutionController.cs    # Code execution and history
+│   └── Properties/
+│       └── launchSettings.json
+│
+└── MiniCloudIDE.Web/                     # Frontend (React + TypeScript)
+    ├── Dockerfile                        # Frontend Docker image
+    ├── nginx.conf                        # Nginx config (serves app + proxies API)
     ├── package.json
     └── src/
-        ├── App.tsx                  # Main entry point
+        ├── App.tsx                       # Main entry point
         ├── components/
-        │   ├── EditorWithControls.tsx   # Editor + controls + output + history
-        │   └── AuthPage.tsx             # Login/Register form
+        │   ├── EditorWithControls.tsx    # Editor + controls + output + history
+        │   └── AuthPage.tsx              # Login/Register form
         └── context/
-            └── AuthProvider.tsx      # Auth context (token, user, login/logout)
+            └── AuthProvider.tsx           # Auth context (token, user, login/logout)
 ```
+
+---
+
+## Architecture
+
+The backend follows **Clean Architecture** with strict dependency rules:
+
+```
+Domain  ←  Application  ←  Infrastructure  ←  API
+```
+
+- **Domain** — pure entities, no external dependencies
+- **Application** — interfaces and DTOs, depends only on Domain
+- **Infrastructure** — database, external services, depends on Application
+- **API** — controllers and configuration, depends on Infrastructure
 
 ---
 
@@ -175,17 +210,17 @@ The application is available at `http://localhost:3000`.
 
 #### 1. Database
 
-Create a PostgreSQL database called `minicloudide`, configure the connection string in `appsettings.json`, then apply migrations:
+Create a PostgreSQL database called `minicloudide`, configure the connection string in `MiniCloudIDE.API/appsettings.json`, then apply migrations:
 
 ```bash
-cd MiniCloudIDE_Backend
-dotnet ef database update
+cd MiniCloudIDE.API
+dotnet ef database update --project ../MiniCloudIDE.Infrastructure
 ```
 
 #### 2. Backend
 
 ```bash
-cd MiniCloudIDE_Backend
+cd MiniCloudIDE.API
 dotnet run
 ```
 
@@ -194,7 +229,7 @@ The backend will automatically start the `worker.py` process.
 #### 3. Frontend
 
 ```bash
-cd minicloudide-frontend
+cd MiniCloudIDE.Web
 npm install
 npm start
 ```

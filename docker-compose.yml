@@ -17,7 +17,7 @@ services:
 
   backend:
     build:
-      context: ./MiniCloudIDE_Backend
+      context: .
       dockerfile: Dockerfile
     environment:
       ConnectionStrings__Postgres: "Host=db;Port=5432;Database=minicloudide;Username=postgres;Password=postgres"
@@ -30,7 +30,7 @@ services:
 
   frontend:
     build:
-      context: ./minicloudide-frontend
+      context: ./MiniCloudIDE.Web
       dockerfile: Dockerfile
     ports:
       - "3000:80"
