@@ -131,20 +131,26 @@ MiniCloudIDE/
 │   │   ├── AuthResponse.cs
 │   │   ├── CodeRequest.cs
 │   │   ├── LoginRequest.cs
-│   │   └── RegisterRequest.cs
+│   │   ├── RegisterRequest.cs
+│   │   └── ExecutionResult.cs
 │   └── Interfaces/                       # Service contracts
 │       ├── IPythonExecutionService.cs
-│       └── IScriptHistoryService.cs
+│       ├── IScriptHistoryService.cs
+│       ├── IAuthService.cs
+│       └── ICodeExecutionService.cs
 │
 ├── MiniCloudIDE.Infrastructure/          # Infrastructure Layer (depends on Application)
 │   ├── DependencyInjection.cs            # DI registration for all infra services
 │   ├── worker.py                         # Python TCP worker for code execution
 │   ├── Data/
-│   │   └── AppDbContext.cs               # EF Core context (Identity + ScriptHistory)
+│   │   ├── AppDbContext.cs               # EF Core context (Identity + ScriptHistory)
+│   │   └── Configurations/              # EF Core entity configurations (ApplicationUserConfiguration, ScriptHistoryConfiguration, ...)
 │   ├── Services/
 │   │   ├── PythonExecutionService.cs     # TCP communication with the Python worker
 │   │   ├── PythonWorkerHostedService.cs  # Launches the worker.py process
-│   │   └── ScriptHistoryService.cs       # CRUD operations for script history
+│   │   ├── ScriptHistoryService.cs       # CRUD operations for script history
+│   │   ├── AuthService.cs                # User authentication logic
+│   │   └── CodeExecutionService.cs       # Handles C#/Python code execution
 │   └── Migrations/                       # EF Core migrations
 │
 ├── MiniCloudIDE.API/                     # API Layer (depends on Infrastructure)
